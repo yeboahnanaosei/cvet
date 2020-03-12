@@ -58,14 +58,14 @@ func main() {
 	json.NewEncoder(os.Stdout).Encode(response)
 }
 
-// InvalidRecord is a record that is not valid.
-type InvalidRecord struct {
+// invalidRecord is a record that is not valid.
+type invalidRecord struct {
 	RowNumber int      `json:"row"`
 	Columns   []string `json:"columns"`
 }
 
 // parse validates f as a valid csv file with valid data.
-func parse(f io.Reader) (validRecords [][]string, invalidRecords []InvalidRecord, err error) {
+func parse(f io.Reader) (validRecords [][]string, invalidRecords []invalidRecord, err error) {
 	r := csv.NewReader(f)
 	r.TrimLeadingSpace = true
 
@@ -79,7 +79,7 @@ func parse(f io.Reader) (validRecords [][]string, invalidRecords []InvalidRecord
 	headerLength := len(header)
 
 	for row, record := range uploadedCSV[1:] {
-		currentRecord := new(InvalidRecord)
+		currentRecord := new(invalidRecord)
 		currentRecord.RowNumber = row + rowOffset
 		recordIsValid := true
 
