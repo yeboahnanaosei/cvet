@@ -9,53 +9,61 @@ import (
 	"strings"
 )
 
+type jsonResponse struct {
+	Success bool `json:"success"`
+	Summary string `json:"summary"`
+	Data interface{} `json:"data,omitempty"`
+	Error map[string]string `json:"error,omitempty"`
+}
+
 func main() {
-	response := make(map[string]interface{})
+	payload := new(jsonResponse)
 
 	if len(os.Args) != 2 {
-		response["success"] = false
-		response["summary"] = "Exactly one argument expected"
-		response["error"] = map[string]string{
+		payload.Success = false
+		payload.Summary = "Exactly one argument expected"
+		payload.Error = map[string]string{
 			"msg": "cvet expects exactly one argument which is the path to the csv file being vetted",
 			"fix": fmt.Sprintf("call cvet with the path to the csv file as the first argument. Eg %s /path/to/csv/file", os.Args[0]),
 		}
-		json.NewEncoder(os.Stdout).Encode(response)
+		json.NewEncoder(os.Stdout).Encode(payload)
 		return
 	}
 
 	csvFile, err := os.Open(os.Args[1])
 	if err != nil {
-		response["success"] = false
-		response["summary"] = "An internal error occured"
-		response["error"] = map[string]string{
-			"msg": fmt.Sprintf("There was an error trying to process the csv file: %v", err),
+		payload.Success = false
+		payload.Summary = "An internal error occured"
+		payload.Error = map[string]string{
+			"msg": fmt.Sprintf("There was an error trying to open the csv file: %v", err),
 			"fix": "Ensure you provided a valid csv file.",
 		}
-		json.NewEncoder(os.Stdout).Encode(response)
+		json.NewEncoder(os.Stdout).Encode(payload)
 		return
 	}
 	defer csvFile.Close()
 
+	// Perform the actual parsing of the csv file
 	validRecords, invalidRecords, err := parse(csvFile)
 
 	if err != nil {
-		response["success"] = false
-		response["summary"] = "An internal error occured"
-		response["error"] = map[string]string{
+		payload.Success = false
+		payload.Summary = "An internal error occured"
+		payload.Error = map[string]string{
 			"msg": fmt.Sprintf("There was an error trying to process the csv file: %v", err),
 			"fix": "Ensure you provided a valid csv file. If this continues, please wait and try again later. You can also contact support",
 		}
-		json.NewEncoder(os.Stdout).Encode(response)
+		json.NewEncoder(os.Stdout).Encode(payload)
 		return
 	}
 
-	response["success"] = true
-	response["summary"] = "File vetted successfully"
-	response["data"] = map[string]interface{}{
+	payload.Success = true
+	payload.Summary = "File vetted successfully"
+	payload.Data = map[string]interface{}{
 		"validRecords":   validRecords,
 		"invalidRecords": invalidRecords,
 	}
-	json.NewEncoder(os.Stdout).Encode(response)
+	json.NewEncoder(os.Stdout).Encode(payload)
 }
 
 // invalidRecord is a record that is not valid.
