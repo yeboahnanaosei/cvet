@@ -19,6 +19,7 @@ type jsonResponse struct {
 func main() {
 	payload := new(jsonResponse)
 
+	// Make sure this program is called with exactly one argument
 	if len(os.Args) != 2 {
 		payload.Success = false
 		payload.Summary = "Exactly one argument expected"
@@ -66,7 +67,8 @@ func main() {
 	json.NewEncoder(os.Stdout).Encode(payload)
 }
 
-// invalidRecord is a record that is not valid.
+// invalidRecord is a record or row in the csv file that has at least
+// one empty column. Any row like this is considered invalid
 type invalidRecord struct {
 	RowNumber int      `json:"row"`
 	Columns   []string `json:"columns"`
