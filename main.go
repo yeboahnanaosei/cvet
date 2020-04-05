@@ -68,7 +68,7 @@ func main() {
 }
 
 // invalidRecord is a record or row in the csv file that has at least
-// one empty column. Any row like this is considered invalid
+// one empty column.
 type invalidRecord struct {
 	RowNumber int      `json:"row"`
 	Columns   []string `json:"columns"`
@@ -84,13 +84,20 @@ func parse(f io.Reader) (validRecords [][]string, invalidRecords []invalidRecord
 		return validRecords, invalidRecords, err
 	}
 
-	rowOffset := 2
-	header := uploadedCSV[0]
+	// The first row in the csv is usually the header. Which has the name of each
+	// column in the csv file
+	var header []string = uploadedCSV[0]
 	headerLength := len(header)
 
+	// To determine the row number of an invalid row, we need to account for
+	// the header in the file
+	const headerOffset = 2
+
+	// Skip the header. Go through each row in the file checking that for each
+	// row there are no empty columns
 	for row, record := range uploadedCSV[1:] {
 		currentRecord := new(invalidRecord)
-		currentRecord.RowNumber = row + rowOffset
+		currentRecord.RowNumber = row + headerOffset
 		recordIsValid := true
 
 		for column, field := range record {
