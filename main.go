@@ -71,7 +71,7 @@ func main() {
 // one empty column.
 type invalidRecord struct {
 	RowNumber int      `json:"row"`
-	Columns   []string `json:"columns"`
+	Columns   []string `json:"cols"`
 }
 
 // parse validates f as a valid csv file with valid data.
@@ -95,15 +95,15 @@ func parse(f io.Reader) (validRecords [][]string, invalidRecords []invalidRecord
 
 	// Skip the header. Go through each row in the file checking that for each
 	// row there are no empty columns
-	for row, record := range uploadedCSV[1:] {
+	for rowIndex, record := range uploadedCSV[1:] {
 		currentRecord := new(invalidRecord)
-		currentRecord.RowNumber = row + headerOffset
+		currentRecord.RowNumber = rowIndex + headerOffset
 		recordIsValid := true
 
-		for column, field := range record {
+		for columnIndex, field := range record {
 			if strings.TrimSpace(field) == "" {
 				recordIsValid = false
-				currentRecord.Columns = append(currentRecord.Columns, header[column])
+				currentRecord.Columns = append(currentRecord.Columns, header[columnIndex])
 			}
 		}
 
