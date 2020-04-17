@@ -17,7 +17,7 @@ type jsonResponse struct {
 }
 
 func main() {
-	payload := new(jsonResponse)
+	payload := jsonResponse{}
 
 	// Make sure this program is called with exactly one argument
 	if len(os.Args) != 2 {
@@ -96,7 +96,7 @@ func parse(f io.Reader) (validRecords [][]string, invalidRecords []invalidRecord
 	// Skip the header. Go through each row in the file checking that for each
 	// row there are no empty columns
 	for rowIndex, record := range uploadedCSV[1:] {
-		currentRecord := new(invalidRecord)
+		currentRecord := invalidRecord{}
 		currentRecord.RowNumber = rowIndex + headerOffset
 		recordIsValid := true
 
@@ -110,7 +110,7 @@ func parse(f io.Reader) (validRecords [][]string, invalidRecords []invalidRecord
 		if recordIsValid {
 			validRecords = append(validRecords, record)
 		} else if !recordIsValid && len(currentRecord.Columns) != headerLength {
-			invalidRecords = append(invalidRecords, *currentRecord)
+			invalidRecords = append(invalidRecords, currentRecord)
 		}
 	}
 	return validRecords, invalidRecords, nil
