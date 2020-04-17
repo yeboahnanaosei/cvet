@@ -10,10 +10,10 @@ import (
 )
 
 type jsonResponse struct {
-	Success bool `json:"success"`
-	Summary string `json:"summary"`
-	Data interface{} `json:"data,omitempty"`
-	Error map[string]string `json:"error,omitempty"`
+	Success bool              `json:"success"`
+	Summary string            `json:"summary"`
+	Data    interface{}       `json:"data,omitempty"`
+	Error   map[string]string `json:"error,omitempty"`
 }
 
 func main() {
