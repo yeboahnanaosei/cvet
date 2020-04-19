@@ -19,7 +19,7 @@ type jsonPayload struct {
 
 var pretty = flag.Bool("p", false, "Pretty print output")
 
-func sendOutput(payload *jsonPayload, dest io.Writer) {
+func sendOutput(payload jsonPayload, dest io.Writer) {
 	encoder := json.NewEncoder(dest)
 	if *pretty {
 		encoder.SetIndent("", "   ")
@@ -29,15 +29,17 @@ func sendOutput(payload *jsonPayload, dest io.Writer) {
 
 func main() {
 	flag.Parse()
-	payload := jsonPayload{}
-	defer sendOutput(&payload, os.Stdout)
-
-	// Make sure this program is called with exactly one argument
 	filename := flag.Arg(0)
+	output := run(filename)
+	sendOutput(output, os.Stdout)
+}
+
+func run(filename string) (out jsonPayload) {
+	out = jsonPayload{}
 	if filename == "" {
-		payload.Ok = false
-		payload.Msg = "Exactly one argument expected"
-		payload.Error = map[string]string{
+		out.Ok = false
+		out.Msg = "Exactly one argument expected"
+		out.Error = map[string]string{
 			"msg": "cvet expects exactly one argument which is the path to the csv file being vetted",
 			"fix": fmt.Sprintf("call cvet with the path to the csv file as the first argument. Eg %s /path/to/csv/file", os.Args[0]),
 		}
@@ -46,9 +48,9 @@ func main() {
 
 	csvFile, err := os.Open(filename)
 	if err != nil {
-		payload.Ok = false
-		payload.Msg = fmt.Sprintf("Could not open file: %s", filename)
-		payload.Error = map[string]string{
+		out.Ok = false
+		out.Msg = fmt.Sprintf("Could not open file: %s", filename)
+		out.Error = map[string]string{
 			"msg": fmt.Sprintf("There was an error trying to open the csv file: %v", err),
 			"fix": "Ensure you provided a valid csv file",
 		}
@@ -60,19 +62,20 @@ func main() {
 	validRecords, invalidRecords, err := cval.Validate(csvFile)
 
 	if err != nil {
-		payload.Ok = false
-		payload.Msg = "An internal error occured"
-		payload.Error = map[string]string{
+		out.Ok = false
+		out.Msg = "An internal error occured"
+		out.Error = map[string]string{
 			"msg": fmt.Sprintf("There was an error trying to process the csv file: %v", err),
 			"fix": "Ensure you provided a valid csv file. If this continues, please wait and try again later. You can also contact support",
 		}
 		return
 	}
 
-	payload.Ok = true
-	payload.Msg = "File vetted successfully"
-	payload.Data = map[string]interface{}{
+	out.Ok = true
+	out.Msg = "File vetted successfully"
+	out.Data = map[string]interface{}{
 		"validRecords":   validRecords,
 		"invalidRecords": invalidRecords,
 	}
+	return
 }
