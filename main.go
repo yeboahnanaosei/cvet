@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -16,12 +17,18 @@ type jsonPayload struct {
 	Error map[string]string `json:"error,omitempty"`
 }
 
+var pretty = flag.Bool("p", false, "Pretty print output")
+
 func sendOutput(payload *jsonPayload, dest io.Writer) {
 	encoder := json.NewEncoder(dest)
+	if *pretty {
+		encoder.SetIndent("", "   ")
+	}
 	encoder.Encode(payload)
 }
 
 func main() {
+	flag.Parse()
 	payload := jsonPayload{}
 	defer sendOutput(&payload, os.Stdout)
 
