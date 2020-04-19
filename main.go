@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/yeboahnanaosei/go/cval"
@@ -15,8 +16,14 @@ type jsonPayload struct {
 	Error map[string]string `json:"error,omitempty"`
 }
 
+func sendOutput(payload *jsonPayload, dest io.Writer) {
+	encoder := json.NewEncoder(dest)
+	encoder.Encode(payload)
+}
+
 func main() {
 	payload := jsonPayload{}
+	defer sendOutput(&payload, os.Stdout)
 
 	// Make sure this program is called with exactly one argument
 	if len(os.Args) != 2 {
@@ -26,7 +33,6 @@ func main() {
 			"msg": "cvet expects exactly one argument which is the path to the csv file being vetted",
 			"fix": fmt.Sprintf("call cvet with the path to the csv file as the first argument. Eg %s /path/to/csv/file", os.Args[0]),
 		}
-		json.NewEncoder(os.Stdout).Encode(payload)
 		return
 	}
 
@@ -38,7 +44,6 @@ func main() {
 			"msg": fmt.Sprintf("There was an error trying to open the csv file: %v", err),
 			"fix": "Ensure you provided a valid csv file.",
 		}
-		json.NewEncoder(os.Stdout).Encode(payload)
 		return
 	}
 	defer csvFile.Close()
@@ -53,7 +58,6 @@ func main() {
 			"msg": fmt.Sprintf("There was an error trying to process the csv file: %v", err),
 			"fix": "Ensure you provided a valid csv file. If this continues, please wait and try again later. You can also contact support",
 		}
-		json.NewEncoder(os.Stdout).Encode(payload)
 		return
 	}
 
@@ -63,5 +67,4 @@ func main() {
 		"validRecords":   validRecords,
 		"invalidRecords": invalidRecords,
 	}
-	json.NewEncoder(os.Stdout).Encode(payload)
 }
