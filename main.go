@@ -33,7 +33,8 @@ func main() {
 	defer sendOutput(&payload, os.Stdout)
 
 	// Make sure this program is called with exactly one argument
-	if len(os.Args) != 2 {
+	filename := flag.Arg(0)
+	if filename == "" {
 		payload.Ok = false
 		payload.Msg = "Exactly one argument expected"
 		payload.Error = map[string]string{
@@ -43,13 +44,13 @@ func main() {
 		return
 	}
 
-	csvFile, err := os.Open(os.Args[1])
+	csvFile, err := os.Open(filename)
 	if err != nil {
 		payload.Ok = false
-		payload.Msg = "An internal error occured"
+		payload.Msg = fmt.Sprintf("Could not open file: %s", filename)
 		payload.Error = map[string]string{
 			"msg": fmt.Sprintf("There was an error trying to open the csv file: %v", err),
-			"fix": "Ensure you provided a valid csv file.",
+			"fix": "Ensure you provided a valid csv file",
 		}
 		return
 	}
