@@ -8,7 +8,7 @@ import (
 	"github.com/yeboahnanaosei/go/cval"
 )
 
-type jsonResponse struct {
+type jsonPayload struct {
 	Ok    bool              `json:"ok"`
 	Msg   string            `json:"msg"`
 	Data  interface{}       `json:"data,omitempty"`
@@ -16,7 +16,7 @@ type jsonResponse struct {
 }
 
 func main() {
-	payload := jsonResponse{}
+	payload := jsonPayload{}
 
 	// Make sure this program is called with exactly one argument
 	if len(os.Args) != 2 {
