@@ -34,8 +34,8 @@ func main() {
 	sendOutput(output, os.Stdout)
 }
 
-func run(filename string) (out jsonPayload) {
-	out = jsonPayload{}
+func run(filename string) jsonPayload {
+	out := jsonPayload{}
 	if filename == "" {
 		out.Ok = false
 		out.Msg = "Exactly one argument expected"
@@ -43,7 +43,7 @@ func run(filename string) (out jsonPayload) {
 			"msg": "cvet expects exactly one argument which is the path to the csv file being vetted",
 			"fix": fmt.Sprintf("call cvet with the path to the csv file as the first argument. Eg %s /path/to/csv/file", os.Args[0]),
 		}
-		return
+		return out
 	}
 
 	csvFile, err := os.Open(filename)
@@ -54,7 +54,7 @@ func run(filename string) (out jsonPayload) {
 			"msg": fmt.Sprintf("There was an error trying to open the csv file: %v", err),
 			"fix": "Ensure you provided a valid csv file",
 		}
-		return
+		return out
 	}
 	defer csvFile.Close()
 
@@ -68,7 +68,7 @@ func run(filename string) (out jsonPayload) {
 			"msg": fmt.Sprintf("There was an error trying to process the csv file: %v", err),
 			"fix": "Ensure you provided a valid csv file. If this continues, please wait and try again later. You can also contact support",
 		}
-		return
+		return out
 	}
 
 	out.Ok = true
@@ -77,5 +77,5 @@ func run(filename string) (out jsonPayload) {
 		"validRecords":   validRecords,
 		"invalidRecords": invalidRecords,
 	}
-	return
+	return out
 }
