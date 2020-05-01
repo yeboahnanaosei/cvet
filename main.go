@@ -11,10 +11,13 @@ import (
 )
 
 type jsonPayload struct {
-	Ok    bool              `json:"ok"`
-	Msg   string            `json:"msg"`
-	Data  interface{}       `json:"data,omitempty"`
-	Error map[string]string `json:"error,omitempty"`
+	Ok    bool        `json:"ok"`
+	Msg   string      `json:"msg"`
+	Data  interface{} `json:"data,omitempty"`
+	Error struct {
+		Msg string `json:"msg"`
+		Fix string `json:"fix"`
+	} `json:"error,omitempty"`
 }
 
 var pretty = flag.Bool("p", false, "Pretty print output")
@@ -39,10 +42,8 @@ func run(filename string) jsonPayload {
 	if filename == "" {
 		out.Ok = false
 		out.Msg = "Exactly one argument expected"
-		out.Error = map[string]string{
-			"msg": "cvet expects exactly one argument which is the path to the csv file being vetted",
-			"fix": fmt.Sprintf("call cvet with the path to the csv file as the first argument. Eg %s /path/to/csv/file", os.Args[0]),
-		}
+		out.Error.Msg = "cvet expects exactly one argument which is the path to the csv file being vetted"
+		out.Error.Fix = fmt.Sprintf("call cvet with the path to the csv file as the first argument. Eg %s /path/to/csv/file", os.Args[0])
 		return out
 	}
 
@@ -50,10 +51,9 @@ func run(filename string) jsonPayload {
 	if err != nil {
 		out.Ok = false
 		out.Msg = fmt.Sprintf("Could not open file: %s", filename)
-		out.Error = map[string]string{
-			"msg": fmt.Sprintf("There was an error trying to open the csv file: %v", err),
-			"fix": "Ensure you provided a valid csv file",
-		}
+		out.Error.Msg = fmt.Sprintf("There was an error trying to open the csv file: %v", err)
+		out.Error.Fix = "Ensure you provided a valid csv file"
+
 		return out
 	}
 	defer csvFile.Close()
@@ -64,10 +64,9 @@ func run(filename string) jsonPayload {
 	if err != nil {
 		out.Ok = false
 		out.Msg = "An internal error occured"
-		out.Error = map[string]string{
-			"msg": fmt.Sprintf("There was an error trying to process the csv file: %v", err),
-			"fix": "Ensure you provided a valid csv file. If this continues, please wait and try again later. You can also contact support",
-		}
+		out.Error.Msg = fmt.Sprintf("There was an error trying to process the csv file: %v", err)
+		out.Error.Fix = "Ensure you provided a valid csv file. If this continues, please wait and try again later. You can also contact support"
+
 		return out
 	}
 
