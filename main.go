@@ -40,7 +40,6 @@ func main() {
 func run(filename string) jsonPayload {
 	out := jsonPayload{}
 	if filename == "" {
-		out.Ok = false
 		out.Msg = "Exactly one argument expected"
 		out.Error.Msg = "cvet expects exactly one argument which is the path to the csv file being vetted"
 		out.Error.Fix = fmt.Sprintf("call cvet with the path to the csv file as the first argument. Eg %s /path/to/csv/file", os.Args[0])
@@ -49,7 +48,6 @@ func run(filename string) jsonPayload {
 
 	csvFile, err := os.Open(filename)
 	if err != nil {
-		out.Ok = false
 		out.Msg = fmt.Sprintf("Could not open file: %s", filename)
 		out.Error.Msg = fmt.Sprintf("There was an error trying to open the csv file: %v", err)
 		out.Error.Fix = "Ensure you provided a valid csv file"
@@ -62,7 +60,6 @@ func run(filename string) jsonPayload {
 	validRecords, invalidRecords, err := cval.Validate(csvFile)
 
 	if err != nil {
-		out.Ok = false
 		out.Msg = "An internal error occured"
 		out.Error.Msg = fmt.Sprintf("There was an error trying to process the csv file: %v", err)
 		out.Error.Fix = "Ensure you provided a valid csv file. If this continues, please wait and try again later. You can also contact support"
