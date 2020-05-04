@@ -14,7 +14,7 @@ type jsonPayload struct {
 	Ok    bool        `json:"ok"`
 	Msg   string      `json:"msg"`
 	Data  interface{} `json:"data,omitempty"`
-	Error struct {
+	Error *struct {
 		Msg string `json:"msg"`
 		Fix string `json:"fix"`
 	} `json:"error,omitempty"`
