@@ -10,14 +10,15 @@ import (
 	"github.com/yeboahnanaosei/go/cval"
 )
 
+type e struct {
+	Msg string `json:"msg"`
+	Fix string `json:"fix"`
+}
 type jsonPayload struct {
 	Ok    bool        `json:"ok"`
 	Msg   string      `json:"msg"`
 	Data  interface{} `json:"data,omitempty"`
-	Error *struct {
-		Msg string `json:"msg"`
-		Fix string `json:"fix"`
-	} `json:"error,omitempty"`
+	Error e           `json:"error,omitempty"`
 }
 
 var pretty = flag.Bool("p", false, "Pretty print output")
@@ -51,7 +52,6 @@ func run(filename string) jsonPayload {
 		out.Msg = fmt.Sprintf("Could not open file: %s", filename)
 		out.Error.Msg = fmt.Sprintf("There was an error trying to open the csv file: %v", err)
 		out.Error.Fix = "Ensure you provided a valid csv file"
-
 		return out
 	}
 	defer csvFile.Close()
@@ -63,7 +63,6 @@ func run(filename string) jsonPayload {
 		out.Msg = "An internal error occured"
 		out.Error.Msg = fmt.Sprintf("There was an error trying to process the csv file: %v", err)
 		out.Error.Fix = "Ensure you provided a valid csv file. If this continues, please wait and try again later. You can also contact support"
-
 		return out
 	}
 
